@@ -12,7 +12,9 @@ bot = telebot.TeleBot(TelegramToken)
 def handle_text(message):
     mes = message.text.lower()
     if "погода" in mes:
-        mas = mes.replace("погода ", "")
+        # Чистим переменную для выгрузки в get API
+        mas = mes.replace("погода", "")
+        mas = mas.replace(" ", "")  # Чистим
         respone = requests.get(
             weather.apiurlweather + mas + weather.tokenweather)
         kelvin = respone.json()['main']['temp']  # Температура
