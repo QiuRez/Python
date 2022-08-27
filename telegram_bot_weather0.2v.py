@@ -1,6 +1,6 @@
 import telebot
 import requests
-from weathertoken import tokenweather  # API Token для погоды
+import weather  # API Token для погоды
 from tokenTelegramBot import TelegramToken  # АPI Token Telegram бота
 
 
@@ -19,7 +19,7 @@ def welcome_text(message):
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     respone = requests.get(
-        "https://api.openweathermap.org/data/2.5/weather?q=" + message.text + tokenweather)
+        weather.apiurlweather + message.text + weather.tokenweather)
     kelvin = respone.json()['main']['temp']  # Температура
     country = respone.json()['sys']['country']  # Страна
     # Конвертация из градусов Кельвина в градусы Цельсия
