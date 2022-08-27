@@ -12,7 +12,9 @@ bot = telebot.TeleBot(TelegramToken)
 def handle_text(message):
     mes = message.text.lower()
     if "погода" in mes:
-        mas = mes.replace("погода ", "")
+        # Чистим переменную для выгрузки в get API
+        mas = mes.replace("погода", "")
+        mas = mas.replace(" ", "")  # Чистим
         respone = requests.get(
             weather.apiurlweather + mas + weather.tokenweather)
         kelvin = respone.json()['main']['temp']  # Температура
@@ -30,17 +32,3 @@ def handle_text(message):
 
 
 bot.polling(none_stop=True, interval=0)
-
-
-#     kelvin = respone.json()['main']['temp']  # Температура
-#     country = respone.json()['sys']['country']  # Страна
-#     # Конвертация из градусов Кельвина в градусы Цельсия
-#     celsiya = int(kelvin) - int(273)
-#     celsiya = str(celsiya)
-#     bot.send_message(message.chat.id, "Температура: "
-#                      + celsiya
-# + "\nСтрана: "
-#                      + country
-#                      )
-# else:
-#     a = False
