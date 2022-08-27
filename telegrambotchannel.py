@@ -14,19 +14,21 @@ def handle_text(message):
     if "погода" in mes:
         # Чистим переменную для выгрузки в get API
         mas = mes.replace("погода", "")
-        mas = mas.replace(" ", "")  # Чистим
+        # Чистим
+        mas = mas.replace(" ", "")
         respone = requests.get(
             weather.apiurlweather + mas + weather.tokenweather)
-        kelvin = respone.json()['main']['temp']  # Температура
-        country = respone.json()['sys']['country']  # Страна
-        # Конвертация из градусов Кельвина в градусы Цельсия
-        celsiya = int(kelvin) - int(273)
-        celsiya = str(celsiya)
-        bot.send_message(message.chat.id, "Температура: "
-                         + celsiya
-                         + "\nСтрана: "
-                         + country
-                         )
+        if not respone.status_code == 404:
+            kelvin = respone.json()['main']['temp']  # Температура
+            country = respone.json()['sys']['country']  # Страна
+            # Конвертация из градусов Кельвина в градусы Цельсия
+            celsiya = int(kelvin) - int(273)
+            celsiya = str(celsiya)
+            bot.send_message(message.chat.id, "Температура: "
+                             + celsiya
+                             + "\nСтрана: "
+                             + country
+                             )
     else:
         message.text = None
 
