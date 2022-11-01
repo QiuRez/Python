@@ -2,18 +2,16 @@ import telebot
 import requests
 import os
 import random
-import tgtocken
 from telebot import types
+import files
+import os.path
+from tockenbot import tocken
+import time
 
-
-sticker1 = open("C:\\Users\\QiuOp\\Desktop\\Python\\sticker.webp", "rb")
+sticker1 = open("/script/sticker.webp", "rb")
 bot = telebot.TeleBot(tocken)
 photo = []
-s = 0
-e = 0
-vibor = []
-file_name_sonya = []
-file_name_egor = []
+stick = 0
 
 
 @bot.message_handler(commands=['start'])
@@ -22,68 +20,92 @@ def start(message):
     btn1 = types.KeyboardButton("🥰🥰Сонечка🥰🥰")
     btn2 = types.KeyboardButton("Егорик👻")
     markup.add(btn1, btn2)
-    mesg = bot.send_message(message.chat.id, "Ты -", reply_markup=markup)
+    bot.send_message(message.chat.id, "Ты -", reply_markup=markup)
 
 
 @bot.message_handler(content_types=['text'])
 def text(message):
+    global stick
+    vibor = ""
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = types.KeyboardButton("Фоточка")
+    markup.add(btn1)
     if (message.text == "🥰🥰Сонечка🥰🥰"):
-        sonya_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = types.KeyboardButton("Получить рандом фото")
-        sonya_markup.add(btn1)
         bot.send_message(message.chat.id, "Привет солнце😘")
-        bot.send_sticker(message.chat.id, sticker1)
+
+        if (os.path.isfile("/script/id/" + str(message.chat.id) + ".txt") == True):
+            with open("/script/id/" + str(message.chat.id) + ".txt", "r") as f:
+                f.seek(0)
+                vibor = f.readline()
+        else:
+            with open("/script/id/" + str(message.chat.id) + ".txt", "w+") as f:
+                f.write("Sonya")
+                f.seek(0)
+                vibor = f.readline()
+        if (stick == 0):
+            bot.send_sticker(message.chat.id, sticker1)
+            stick = stick + 1
         bot.send_message(
-            message.chat.id, "Отправь фотку, чтобы я её сохранил<3", reply_markup=sonya_markup)
-        vibor.clear()
-        vibor.append("Sonya")
+            message.chat.id, "Отправь фотку, чтобы я её сохранил<3", reply_markup=markup)
     elif (message.text == "Егорик👻"):
-        egor_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = types.KeyboardButton("Получить рандом фото")
-        egor_markup.add(btn1)
+        if (os.path.isfile("/script/id/" + str(message.chat.id) + ".txt") == True):
+            with open("/script/id/" + str(message.chat.id) + ".txt", "r") as f:
+                f.seek(0)
+                vibor = f.readline()
+        else:
+            with open("/script/id/" + str(message.chat.id) + ".txt", "w+") as f:
+                f.write("Egor")
+                f.seek(0)
+                vibor = f.readline()
         bot.send_message(
-            message.chat.id, "Отправь фотку своей женщине бездарь", reply_markup=egor_markup)
-        vibor.clear()
-        vibor.append("Egor")
+            message.chat.id, "Отправь фотку своей женщине бездарь", reply_markup=markup)
 
-    if (message.text == "Получить рандом фото" and vibor[0] == "Sonya"):
-        answer = random.choice(file_name_egor)
-        bot.send_photo(message.chat.id, open("C:\\Users\\QiuOp\\Desktop\\Python\\Egor\\" + answer, "rb"))
-    elif (message.text == "Получить рандом фото" and vibor[0] == "Egor"):
-        answer = random.choice(file_name_sonya)
-        bot.send_photo(message.chat.id, open("C:\\Users\\QiuOp\\Desktop\\Python\\Sonya\\" + answer, "rb"))
-
-
+    if (message.text == "Фоточка"):
+        with open("/script/id/" + str(message.chat.id) + ".txt", "r") as f:
+            f.seek(0)
+            vibor = f.readline()
+        if (vibor == "Sonya"):
+            answer = random.choice(os.listdir("/script/Egor/"))
+            bot.send_photo(message.chat.id, open(
+                "/script/Egor/" + answer, "rb"), reply_markup=markup)
+        elif (vibor == "Egor"):
+            if (len(os.listdir("/script/Sonya/")) == 0):
+                bot.send_message(message.chat.id, "Ещё пока пусто")
+            else:
+                answer = random.choice(os.listdir("/script/Sonya/"))
+                bot.send_photo(message.chat.id, open(
+                    "/script/Sonya/" + answer, "rb"), reply_markup=markup)
 
 
 @bot.message_handler(content_types=['photo'])
 def save_photo(message):
+    time.sleep(0.02)
     fileid = message.photo[-1].file_id
     file_info = bot.get_file(fileid)
+    photo.clear()
     global s
     global e
-    if (vibor[0] == "Sonya"):
-        photo.clear()
+    with open("/script/id/" + str(message.chat.id) + ".txt", "r") as f:
+        f.seek(0)
+        vibor = f.readline()
+    if (vibor == "Sonya"):
         photo.append(fileid)
-        if len(photo) == 1:
-            send = bot.send_message(message.chat.id, "Фоточка пришла зайчик❤️")
+        if (len(photo) == 1):
+            bot.send_message(message.chat.id, "Фоточка пришла зайчик❤️")
+            respone = requests.get(
+                "https://api.telegram.org/file/bot" + tocken + "/" + file_info.file_path)
+            with open("/script/Sonya/" + "Photo_" + str(files.s) + ".jpg", "wb") as f:
+                f.write(respone.content)
+            files.s = files.s + 1
+    elif (vibor == "Egor"):
+        photo.append(fileid)
+        if (len(photo) == 1):
+            bot.send_message(message.chat.id, "Фоточка пришла")
             respone = requests.get(
                 'https://api.telegram.org/file/bot' + tocken + "/" + file_info.file_path)
-            with open("C:\\Users\\QiuOp\\Desktop\\Python\\Sonya\\" + "Photo_" + str(s) + ".jpg", "wb") as f:
+            with open("/script/Egor/" + "Photo_" + str(files.e) + ".jpg", "wb") as f:
                 f.write(respone.content)
-            file_name_sonya.append("Photo_" + str(s) + ".jpg")
-            s = s + 1
-    elif (vibor[0] == "Egor"):
-        photo.clear()
-        photo.append(fileid)
-        if len(photo) == 1:
-            send = bot.send_message(message.chat.id, "Фоточка пришла")
-            respone = requests.get(
-                'https://api.telegram.org/file/bot' + tocken + "/" + file_info.file_path)
-            with open("C:\\Users\\QiuOp\\Desktop\\Python\\Egor\\" + "Photo_" + str(e) + ".jpg", "wb") as f:
-                f.write(respone.content)
-            file_name_egor.append("Photo_" + str(e) + ".jpg")
-            e = e + 1
+            files.e = files.e + 1
 
 
 bot.polling(none_stop=True, interval=0)
