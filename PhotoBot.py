@@ -92,20 +92,28 @@ def save_photo(message):
         photo.append(fileid)
         if (len(photo) == 1):
             bot.send_message(message.chat.id, "Фоточка пришла зайчик❤️")
+            photo.clear()
             respone = requests.get(
                 "https://api.telegram.org/file/bot" + tocken + "/" + file_info.file_path)
-            with open("/script/Sonya/" + "Photo_" + str(files.s) + ".jpg", "wb") as f:
-                f.write(respone.content)
-            files.s = files.s + 1
+            if (respone.status_code == 200):
+                with open("/script/Sonya/" + "Photo_" + str(files.s) + ".jpg", "wb") as f:
+                    f.write(respone.content)
+                    files.s = files.s + 1
+            else:
+                bot.send_message(message.chat_id, "Ещё раз")
     elif (vibor == "Egor"):
         photo.append(fileid)
         if (len(photo) == 1):
             bot.send_message(message.chat.id, "Фоточка пришла")
+            photo.clear()
             respone = requests.get(
                 'https://api.telegram.org/file/bot' + tocken + "/" + file_info.file_path)
-            with open("/script/Egor/" + "Photo_" + str(files.e) + ".jpg", "wb") as f:
-                f.write(respone.content)
-            files.e = files.e + 1
+            if (respone.status_code == 200):
+                with open("/script/Egor/" + "Photo_" + str(files.e) + ".jpg", "wb") as f:
+                    f.write(respone.content)
+                    files.e = files.e + 1
+            else:
+                bot.send_message(message.chat_id, "Ещё раз")
 
 
 bot.polling(none_stop=True, interval=0)
